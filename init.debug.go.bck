@@ -1,0 +1,101 @@
+package main
+
+import "fmt"
+
+/**
+ * Score points by scanning valuable fish faster than your opponent.
+ **/
+
+func main() {
+	var creatureCount int
+	fmt.Scan(&creatureCount)
+    WriteDebug("nb creature", creatureCount)
+
+	for i := 0; i < creatureCount; i++ {
+		var creatureId, color, _type int
+		fmt.Scan(&creatureId, &color, &_type)
+        WriteDebug("creature", creatureId, color, _type)
+	}
+	for {
+		var myScore int
+		fmt.Scan(&myScore)
+        WriteDebug("my score", myScore)
+
+		var foeScore int
+		fmt.Scan(&foeScore)
+        WriteDebug("foe score", foeScore)
+
+		var myScanCount int
+		fmt.Scan(&myScanCount)
+        WriteDebug("my scan count", myScanCount)
+
+		for i := 0; i < myScanCount; i++ {
+			var creatureId int
+			fmt.Scan(&creatureId)
+            WriteDebug("creature id", creatureId)
+		}
+		var foeScanCount int
+		fmt.Scan(&foeScanCount)
+        WriteDebug("foe scan count", foeScanCount)
+
+		for i := 0; i < foeScanCount; i++ {
+			var creatureId int
+			fmt.Scan(&creatureId)
+            WriteDebug("creature id", creatureId)
+		}
+		var myDroneCount int
+		fmt.Scan(&myDroneCount)
+        WriteDebug("my drone count", myDroneCount)
+
+		for i := 0; i < myDroneCount; i++ {
+			var droneId, droneX, droneY, emergency, battery int
+			fmt.Scan(&droneId, &droneX, &droneY, &emergency, &battery)
+            WriteDebug("drone id", droneId, "x", droneX, "y", droneY, "emergency", emergency, "battery", battery)
+		}
+		var foeDroneCount int
+		fmt.Scan(&foeDroneCount)
+        WriteDebug("foe drone count", myDroneCount)
+
+		for i := 0; i < foeDroneCount; i++ {
+			var droneId, droneX, droneY, emergency, battery int
+			fmt.Scan(&droneId, &droneX, &droneY, &emergency, &battery)
+            WriteDebug("drone id", droneId, "x", droneX, "y", droneY, "emergency", emergency, "battery", battery)
+		}
+		var droneScanCount int
+		fmt.Scan(&droneScanCount)
+        WriteDebug("drone scan count", droneScanCount)
+
+		for i := 0; i < droneScanCount; i++ {
+			var droneId, creatureId int
+			fmt.Scan(&droneId, &creatureId)
+            WriteDebug("drone id", droneId, "creature id", creatureId)
+		}
+		var visibleCreatureCount int
+		fmt.Scan(&visibleCreatureCount)
+        WriteDebug("visible creature count", visibleCreatureCount)
+
+		for i := 0; i < visibleCreatureCount; i++ {
+			var creatureId, creatureX, creatureY, creatureVx, creatureVy int
+			fmt.Scan(&creatureId, &creatureX, &creatureY, &creatureVx, &creatureVy)
+            WriteDebug("creature id", creatureId, "x", creatureX, "y", creatureY, "vx", creatureVx, "vy", creatureVy)
+		}
+		var radarBlipCount int
+		fmt.Scan(&radarBlipCount)
+        WriteDebug("radar blip count", radarBlipCount)
+
+		for i := 0; i < radarBlipCount; i++ {
+			var droneId, creatureId int
+			var radar string
+			fmt.Scan(&droneId, &creatureId, &radar)
+            WriteDebug("drone id", droneId, "creature id", creatureId, "radar", radar)
+		}
+		for i := 0; i < myDroneCount; i++ {
+			// fmt.Fprintln(os.Stderr, "Debug messages...")
+			fmt.Println("WAIT 1") // MOVE <x> <y> <light (1|0)> | WAIT <light (1|0)>
+		}
+	}
+}
+
+func WriteDebug(a ...any) {
+	fmt.Fprintln(os.Stderr, a...)
+}
