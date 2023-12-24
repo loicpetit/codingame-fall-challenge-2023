@@ -6,7 +6,7 @@ func NewChallengeRunner() Runner[Input, State, Action] {
 	return NewRunner[Input, State, Action](
 		NewChallengeGame(),
 		NewReader(),
-		NewStrategyDoNothing(),
+		NewStrategyNearest(),
 		NewWriter(),
 	)
 }

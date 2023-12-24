@@ -153,7 +153,10 @@ func (Reader) resetCreatures(creatures map[int]*Creature) map[int]*Creature {
 // UpdateState implements InputReader.
 func (Reader) UpdateState(state *State, input Input) *State {
 	WriteDebug("Update state, input:", input)
-	return state
+	return state.
+		SetCreatures(input.NbCreatures, input.Creatures).
+		SetPlayer(input.Player).
+		SetFoe(input.Foe)
 }
 
 // ValidateAction implements InputReader.
