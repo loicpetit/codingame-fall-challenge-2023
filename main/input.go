@@ -87,7 +87,7 @@ func (reader Reader) Read() chan Input {
 				var id, x, y, emergency, battery int
 				fmt.Scan(&id, &x, &y, &emergency, &battery)
 				reader.debug("drone id", id, "x", x, "y", y, "emergency", emergency, "battery", battery)
-				playerDrones[id] = NewDrone(id, x, y, emergency, battery)
+				playerDrones[id] = NewDrone(id, x, y, emergency, battery, false)
 			}
 			// foe drones
 			var foeDroneCount int
@@ -98,7 +98,7 @@ func (reader Reader) Read() chan Input {
 				var id, x, y, emergency, battery int
 				fmt.Scan(&id, &x, &y, &emergency, &battery)
 				reader.debug("drone id", id, "x", x, "y", y, "emergency", emergency, "battery", battery)
-				foeDrones[id] = NewDrone(id, x, y, emergency, battery)
+				foeDrones[id] = NewDrone(id, x, y, emergency, battery, false)
 			}
 			// drone scans
 			var droneScanCount int
@@ -154,6 +154,7 @@ func (Reader) resetCreatures(creatures map[int]*Creature) map[int]*Creature {
 func (Reader) UpdateState(state *State, input Input) *State {
 	WriteDebug("Update state, input:", input)
 	return state.
+		SetLastPlayer(2).
 		SetCreatures(input.NbCreatures, input.Creatures).
 		SetPlayer(input.Player).
 		SetFoe(input.Foe)

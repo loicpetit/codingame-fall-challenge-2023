@@ -14,6 +14,16 @@ func (player *PlayerState) String() string {
 	return fmt.Sprintf("{score:%d, drones:%v}", player.Score, player.Drones)
 }
 
+func (player *PlayerState) GetFirstDrone() *Drone {
+	if player == nil {
+		return nil
+	}
+	for _, drone := range player.Drones {
+		return drone
+	}
+	return nil
+}
+
 func NewPlayerState(score int, drones map[int]*Drone) *PlayerState {
 	return &PlayerState{
 		Score:  score,
@@ -22,6 +32,7 @@ func NewPlayerState(score int, drones map[int]*Drone) *PlayerState {
 }
 
 type State struct {
+	LastPlayer  int // player 1 = player, player 2 = foe, player 3 = game update
 	NbCreatures int
 	Creatures   map[int]*Creature
 	Player      *PlayerState
@@ -32,8 +43,21 @@ func (state *State) String() string {
 	if state == nil {
 		return ""
 	}
-	return fmt.Sprintf("{nbCreatures:%d, creatures:%v, player:%v, foe:%v}",
-		state.NbCreatures, state.Creatures, state.Player, state.Foe)
+	return fmt.Sprintf("{lastPlayer:%d, nbCreatures:%d, creatures:%v, player:%v, foe:%v}",
+		state.LastPlayer, state.NbCreatures, state.Creatures, state.Player, state.Foe)
+}
+
+func (state *State) SetLastPlayer(player int) *State {
+	if state == nil {
+		return nil
+	}
+	return &State{
+		LastPlayer:  player,
+		NbCreatures: state.NbCreatures,
+		Creatures:   state.Creatures,
+		Player:      state.Player,
+		Foe:         state.Foe,
+	}
 }
 
 func (state *State) SetCreatures(nbCreatures int, creatures map[int]*Creature) *State {
@@ -41,6 +65,7 @@ func (state *State) SetCreatures(nbCreatures int, creatures map[int]*Creature) *
 		return nil
 	}
 	return &State{
+		LastPlayer:  state.LastPlayer,
 		NbCreatures: nbCreatures,
 		Creatures:   creatures,
 		Player:      state.Player,
@@ -53,6 +78,7 @@ func (state *State) SetPlayer(player *PlayerState) *State {
 		return nil
 	}
 	return &State{
+		LastPlayer:  state.LastPlayer,
 		NbCreatures: state.NbCreatures,
 		Creatures:   state.Creatures,
 		Player:      player,
@@ -65,6 +91,7 @@ func (state *State) SetFoe(foe *PlayerState) *State {
 		return nil
 	}
 	return &State{
+		LastPlayer:  state.LastPlayer,
 		NbCreatures: state.NbCreatures,
 		Creatures:   state.Creatures,
 		Player:      state.Player,

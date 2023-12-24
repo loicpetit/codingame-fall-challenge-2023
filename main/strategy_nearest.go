@@ -13,6 +13,7 @@ type StrategyNearest struct{}
 // FindAction implements Strategy.
 func (StrategyNearest) FindAction(state *State, player int, maxTime time.Time) *Action {
 	// find nearest unscanned fish
+	// compare distance², not need to compute sqrt for comparaisons
 	minDistance := MAX_DISTANCE
 	var nearestCreature *Creature
 	for _, creature := range state.Creatures {
@@ -31,7 +32,7 @@ func (StrategyNearest) FindAction(state *State, player int, maxTime time.Time) *
 		return nil
 	}
 	light := minDistance > MIN_LIGHT_DISTANCE && minDistance <= MAX_LIGHT_DISTANCE
-	return NewMoveAction(nearestCreature.Coords.X, nearestCreature.Coords.Y, light)
+	return NewMoveAction(player, nearestCreature.Coords.X, nearestCreature.Coords.Y, light)
 }
 
 func NewStrategyNearest() Strategy[State, Action] {

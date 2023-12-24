@@ -6,9 +6,10 @@ type Writer struct{}
 
 func (Writer) Write(action *Action) {
 	if action == nil {
-		// panic("No action to write")
-		WriteOutput("WAIT 0")
-		return
+		panic("No action to write")
+	}
+	if action.Player != 1 {
+		panic("Only manage player 1 actions")
 	}
 	light := 0
 	if action.Light {
