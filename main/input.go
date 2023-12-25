@@ -151,8 +151,8 @@ func (Reader) resetCreatures(creatures map[int]*Creature) map[int]*Creature {
 }
 
 // UpdateState implements InputReader.
-func (Reader) UpdateState(state *State, input Input) *State {
-	WriteDebug("Update state, input:", input)
+func (reader Reader) UpdateState(state *State, input Input) *State {
+	reader.debug("Update state, input:", input)
 	return state.
 		SetLastPlayer(2).
 		SetCreatures(input.NbCreatures, input.Creatures).

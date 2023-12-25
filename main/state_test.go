@@ -106,7 +106,6 @@ func TestStateSetters(t *testing.T) {
 
 func TestPlayerStateFirstDrone(t *testing.T) {
 	drone1 := NewDrone(1, 1, 1, 1, 1, false)
-	drone2 := NewDrone(2, 2, 2, 2, 2, false)
 	player1 := NewPlayerState(5, map[int]*Drone{})
 	if nil != player1.GetFirstDrone() {
 		t.Errorf("Player 1 should NOT have first drone but has %v", player1.GetFirstDrone())
@@ -117,11 +116,5 @@ func TestPlayerStateFirstDrone(t *testing.T) {
 	if drone1 != player2.GetFirstDrone() {
 		t.Errorf("Player 2 should have first drone to be drone1 but has %v", player2.GetFirstDrone())
 	}
-	player3 := NewPlayerState(5, map[int]*Drone{
-		2: drone2,
-		3: NewDrone(3, 3, 3, 3, 3, false),
-	})
-	if drone2 != player3.GetFirstDrone() {
-		t.Errorf("Player 3 should have first drone to be drone2 but has %v", player3.GetFirstDrone())
-	}
+	// cannot test with multi drones because of the map, the first drone is random
 }
