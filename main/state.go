@@ -37,14 +37,15 @@ type State struct {
 	Creatures   map[int]*Creature
 	Player      *PlayerState
 	Foe         *PlayerState
+	Round       int
 }
 
 func (state *State) String() string {
 	if state == nil {
 		return ""
 	}
-	return fmt.Sprintf("{lastPlayer:%d, nbCreatures:%d, creatures:%v, player:%v, foe:%v}",
-		state.LastPlayer, state.NbCreatures, state.Creatures, state.Player, state.Foe)
+	return fmt.Sprintf("{lastPlayer:%d, nbCreatures:%d, creatures:%v, player:%v, foe:%v, round:%d}",
+		state.LastPlayer, state.NbCreatures, state.Creatures, state.Player, state.Foe, state.Round)
 }
 
 func (state *State) SetLastPlayer(player int) *State {
@@ -57,6 +58,7 @@ func (state *State) SetLastPlayer(player int) *State {
 		Creatures:   state.Creatures,
 		Player:      state.Player,
 		Foe:         state.Foe,
+		Round:       state.Round,
 	}
 }
 
@@ -70,6 +72,7 @@ func (state *State) SetCreatures(nbCreatures int, creatures map[int]*Creature) *
 		Creatures:   creatures,
 		Player:      state.Player,
 		Foe:         state.Foe,
+		Round:       state.Round,
 	}
 }
 
@@ -83,6 +86,7 @@ func (state *State) SetPlayer(player *PlayerState) *State {
 		Creatures:   state.Creatures,
 		Player:      player,
 		Foe:         state.Foe,
+		Round:       state.Round,
 	}
 }
 
@@ -96,9 +100,26 @@ func (state *State) SetFoe(foe *PlayerState) *State {
 		Creatures:   state.Creatures,
 		Player:      state.Player,
 		Foe:         foe,
+		Round:       state.Round,
+	}
+}
+
+func (state *State) IncreaseRound() *State {
+	if state == nil {
+		return nil
+	}
+	return &State{
+		LastPlayer:  state.LastPlayer,
+		NbCreatures: state.NbCreatures,
+		Creatures:   state.Creatures,
+		Player:      state.Player,
+		Foe:         state.Foe,
+		Round:       state.Round + 1,
 	}
 }
 
 func NewState() *State {
-	return &State{}
+	return &State{
+		Round: 0,
+	}
 }

@@ -193,3 +193,56 @@ func TestReaderRead(t *testing.T) {
 		}
 	}
 }
+
+func TestReaderUpdateState(t *testing.T) {
+	baseState := NewState()
+	state := NewReader().
+		UpdateState(
+			baseState,
+			NewInput(
+				1,
+				map[int]*Creature{3: NewCreature(3, 0, 0)},
+				NewPlayerState(0, map[int]*Drone{}),
+				NewPlayerState(0, map[int]*Drone{}),
+			),
+		)
+	if baseState == state {
+		t.Error("State should be different of base state")
+	}
+	if baseState.LastPlayer != 0 {
+		t.Error("Base state last player should be 0")
+	}
+	if baseState.NbCreatures != 0 {
+		t.Error("Base state nb creatures should be 0")
+	}
+	if len(baseState.Creatures) != 0 {
+		t.Error("Base state nb creatures in map should be 0")
+	}
+	if baseState.Player != nil {
+		t.Error("Base state player should be nil")
+	}
+	if baseState.Foe != nil {
+		t.Error("Base state foe should be nil")
+	}
+	if baseState.Round != 0 {
+		t.Error("Base state round should be 0")
+	}
+	if state.LastPlayer != 3 {
+		t.Error("State last player should be 3")
+	}
+	if state.NbCreatures != 1 {
+		t.Error("State nb creatures should be 1")
+	}
+	if len(state.Creatures) != 1 {
+		t.Error("State nb creatures in map should be 1")
+	}
+	if state.Player == nil {
+		t.Error("State player should NOT be nil")
+	}
+	if state.Foe == nil {
+		t.Error("State foe should NOT be nil")
+	}
+	if state.Round != 1 {
+		t.Error("State round should be 0")
+	}
+}

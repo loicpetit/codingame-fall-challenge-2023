@@ -154,7 +154,8 @@ func (Reader) resetCreatures(creatures map[int]*Creature) map[int]*Creature {
 func (reader Reader) UpdateState(state *State, input Input) *State {
 	reader.debug("Update state, input:", input)
 	return state.
-		SetLastPlayer(2).
+		IncreaseRound().
+		SetLastPlayer(3).
 		SetCreatures(input.NbCreatures, input.Creatures).
 		SetPlayer(input.Player).
 		SetFoe(input.Foe)
