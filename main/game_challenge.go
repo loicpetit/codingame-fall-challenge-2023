@@ -6,6 +6,8 @@ import (
 
 const MAP_SIZE = 10000
 const MAX_DRONE_DISTANCE = 600
+const SCAN_SQUARED_DISTANCE = 800 * 800
+const SCAN_WITH_LIGHT_SQUARED_DISTANCE = 2000 * 2000
 
 type ChallengeGame struct {
 	coords CoordsHelper
@@ -55,27 +57,75 @@ func (game ChallengeGame) Play(state *State, action *Action) *State {
 	if state == nil || action == nil {
 		return state
 	}
-	if action.Type == "GAME_UPDATE" {
-		return game.updateGameState(state, action.Player)
+	expectedPlayer := game.GetNextPlayer(state)
+	if action.Player != expectedPlayer {
+		panic(fmt.Sprintf("Expected player to play is %d but get %d", expectedPlayer, action.Player))
 	}
-	if action.Type == "WAIT" {
-		return game.wait(state, action.Player, action.Light)
-	} else if action.Type == "MOVE" {
-		return game.move(state, action.Player, action.X, action.Y, action.Light)
-	} else {
+	lastPlayerState := state.SetLastPlayer(action.Player)
+	switch action.Type {
+	case "GAME_UPDATE":
+		return game.updateGameState(lastPlayerState)
+	case "WAIT":
+		return game.wait(lastPlayerState, action.Light)
+	case "MOVE":
+		return game.move(lastPlayerState, action.X, action.Y, action.Light)
+	default:
 		panic(fmt.Sprintf("Unhandled action type: %s", action.Type))
 	}
 }
 
-func (ChallengeGame) updateGameState(state *State, player int) *State {
-	if player != 3 {
+func (game ChallengeGame) updateGameState(state *State) *State {
+	if state == nil {
+		return nil
+	}
+	if state.LastPlayer != 3 {
 		panic("Only player 3 can update game state")
 	}
-	return state
+	updatedCreatures := make(map[int]*Creature)
+	for _, creature := range state.Creatures {
+		updatedCreature := game.moveCreature(creature)
+		for _, drone := range state.Player.Drones {
+			if game.isScannable(drone, creature) {
+				updatedCreature = updatedCreature.SetScannedBy("player")
+			}
+		}
+		for _, drone := range state.Foe.Drones {
+			if game.isScannable(drone, creature) {
+				updatedCreature = updatedCreature.SetScannedBy("foe")
+			}
+		}
+		updatedCreatures[updatedCreature.Id] = updatedCreature
+	}
+	return state.SetCreatures(state.NbCreatures, updatedCreatures)
 }
 
-func (game ChallengeGame) wait(state *State, player int, shouldLight bool) *State {
-	if player == 1 {
+func (game ChallengeGame) moveCreature(creature *Creature) *Creature {
+	if creature == nil {
+		return nil
+	}
+	return creature.SetCoords(
+		NewCreatureCoords(
+			game.fixCoord(creature.Coords.X+creature.Coords.Vx),
+			game.fixCoord(creature.Coords.Y+creature.Coords.Vy),
+			creature.Coords.Vx,
+			creature.Coords.Vy,
+		),
+	)
+}
+
+func (game ChallengeGame) isScannable(drone *Drone, creature *Creature) bool {
+	if drone == nil || creature == nil {
+		return false
+	}
+	scanSquaredDistance := SCAN_SQUARED_DISTANCE
+	if drone.Light {
+		scanSquaredDistance = SCAN_WITH_LIGHT_SQUARED_DISTANCE
+	}
+	return game.coords.GetSquaredDistance(drone.X, drone.Y, creature.Coords.X, creature.Coords.Y) <= scanSquaredDistance
+}
+
+func (game ChallengeGame) wait(state *State, shouldLight bool) *State {
+	if state.LastPlayer == 1 {
 		newDrone := game.waitDrone(state.Player.GetFirstDrone(), shouldLight)
 		return state.SetPlayer(
 			NewPlayerState(
@@ -83,7 +133,7 @@ func (game ChallengeGame) wait(state *State, player int, shouldLight bool) *Stat
 				map[int]*Drone{newDrone.Id: newDrone},
 			),
 		)
-	} else if player == 2 {
+	} else if state.LastPlayer == 2 {
 		newDrone := game.waitDrone(state.Foe.GetFirstDrone(), shouldLight)
 		return state.SetFoe(
 			NewPlayerState(
@@ -92,12 +142,12 @@ func (game ChallengeGame) wait(state *State, player int, shouldLight bool) *Stat
 			),
 		)
 	} else {
-		panic(fmt.Sprintf("Unhandled player %d", player))
+		panic(fmt.Sprintf("Unhandled player %d", state.LastPlayer))
 	}
 }
 
-func (game ChallengeGame) move(state *State, player int, x int, y int, shouldLight bool) *State {
-	if player == 1 {
+func (game ChallengeGame) move(state *State, x int, y int, shouldLight bool) *State {
+	if state.LastPlayer == 1 {
 		newDrone := game.moveDrone(state.Player.GetFirstDrone(), x, y, shouldLight)
 		return state.SetPlayer(
 			NewPlayerState(
@@ -105,7 +155,7 @@ func (game ChallengeGame) move(state *State, player int, x int, y int, shouldLig
 				map[int]*Drone{newDrone.Id: newDrone},
 			),
 		)
-	} else if player == 2 {
+	} else if state.LastPlayer == 2 {
 		newDrone := game.moveDrone(state.Foe.GetFirstDrone(), x, y, shouldLight)
 		return state.SetFoe(
 			NewPlayerState(
@@ -114,7 +164,7 @@ func (game ChallengeGame) move(state *State, player int, x int, y int, shouldLig
 			),
 		)
 	} else {
-		panic(fmt.Sprintf("Unhandled player %d", player))
+		panic(fmt.Sprintf("Unhandled player %d", state.LastPlayer))
 	}
 }
 
@@ -158,6 +208,22 @@ func (ChallengeGame) fixCoord(coord int) int {
 // Start implements Game.
 func (ChallengeGame) Start() *State {
 	return NewState()
+}
+
+// Get current score of the player
+func (ChallengeGame) GetScore(state *State, player int) int {
+	return 0
+}
+
+// Get delta between scores of the 2 players from player perspective
+// Ex: player1 has 50 player 2 has 30, delta for player 1 is 20, but for player 2 is -20
+func (ChallengeGame) GetDeltaScore(state *State, player int) int {
+	return 0
+}
+
+// Start implements Game.
+func (ChallengeGame) GetMaxScore() int {
+	return 0
 }
 
 // Winner implements Game.
