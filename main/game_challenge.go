@@ -15,6 +15,7 @@ type ChallengeGame struct {
 
 // GetAvailableActions implements Game.
 func (ChallengeGame) GetAvailableActions(state *State, player int) []*Action {
+	// todo
 	// player 1 = player
 	// player 2 = foe
 	// player 3 = game update
@@ -96,6 +97,7 @@ func (game ChallengeGame) updateGameState(state *State) *State {
 		}
 		updatedCreatures[updatedCreature.Id] = updatedCreature
 	}
+	// TODO : update player/foe scores
 	return state.SetCreatures(state.NbCreatures, updatedCreatures)
 }
 
@@ -103,6 +105,9 @@ func (game ChallengeGame) moveCreature(creature *Creature) *Creature {
 	if creature == nil {
 		return nil
 	}
+	// TODO check collisions next turn, if collided fix Vx/Vy
+	// IDEA check only previously moved creature to already have new coords
+	// Update Vx/Vy of both if collision
 	return creature.SetCoords(
 		NewCreatureCoords(
 			game.fixCoord(creature.Coords.X+creature.Coords.Vx),
@@ -227,8 +232,39 @@ func (ChallengeGame) GetMaxScore() int {
 }
 
 // Winner implements Game.
-func (ChallengeGame) Winner(state *State) int {
+func (game ChallengeGame) Winner(state *State) int {
+	if state.Round == 200 || game.isEveryCreatureScanned(state) {
+		if state.Player.Score > state.Foe.Score {
+			return 1
+		}
+		if state.Foe.Score > state.Player.Score {
+			return 2
+		}
+		return 0
+	}
+	if state.Player.Score > state.Foe.Score {
+		// todo
+		// if max possible score of foe < player score
+		// return 1
+	}
+	if state.Foe.Score > state.Player.Score {
+		// todo
+		// if max possible score of player < foe score
+		// return 2
+	}
 	return 0
+}
+
+func (ChallengeGame) isEveryCreatureScanned(state *State) bool {
+	if state == nil {
+		return false
+	}
+	for _, creature := range state.Creatures {
+		if len(creature.scannedBy) < 2 {
+			return false
+		}
+	}
+	return true
 }
 
 func NewChallengeGame() Game[State, Action] {
